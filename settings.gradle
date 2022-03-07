@@ -1,1 +1,3 @@
-include ':example'
+rootProject.name = 'com.buglife.sdk'
+
+include ':buglife-android', ':example'

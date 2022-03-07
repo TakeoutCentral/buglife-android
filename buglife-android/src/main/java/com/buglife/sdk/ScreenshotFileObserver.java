@@ -18,7 +18,6 @@
 package com.buglife.sdk;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.FileObserver;
 

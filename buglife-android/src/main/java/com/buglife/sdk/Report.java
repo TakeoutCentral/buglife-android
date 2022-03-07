@@ -26,7 +26,6 @@ import com.buglife.sdk.reporting.SessionSnapshot;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Attr;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

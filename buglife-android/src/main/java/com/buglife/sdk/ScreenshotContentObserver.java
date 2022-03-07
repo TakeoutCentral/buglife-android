@@ -27,14 +27,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.File;
-
-import kotlin.jvm.Throws;
 
 /**
  * On Android M and above, we use a ContentObserver to detect screenshots.

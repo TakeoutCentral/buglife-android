@@ -20,7 +20,7 @@ package com.buglife.sdk;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import android.util.Base64;
 
 import org.json.JSONException;

@@ -40,7 +40,7 @@ public class SessionSnapshot implements Parcelable {
 
     public SessionSnapshot(Context context, String userEmail, String userIdentifier) {
         mPlatform = "android";
-        mSDKVersion = com.buglife.sdk.BuildConfig.VERSION_NAME;
+        mSDKVersion = "1.1.1";
         String sdkStr;
         try {
             Class.forName("com.buglife.BuglifeModule");

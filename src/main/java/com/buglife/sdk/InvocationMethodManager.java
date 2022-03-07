@@ -109,7 +109,8 @@ class InvocationMethodManager {
         if (mScreenshotListener == null) {
             mScreenshotListener = new OnScreenshotTakenListener() {
                 @Override public void onScreenshotTaken(File file) {
-                    if (file.mkdirs())
+                    File dir = file.getParentFile();
+                    if (dir.exists() || dir.mkdirs())
                         mListener.onScreenshotInvocationMethodTriggered(file);
                     else
                         Log.e("You should add android:requestLegacyExternalStorage=\"true\" into your AndroidManifest.xml");
@@ -121,12 +122,7 @@ class InvocationMethodManager {
         // Try to start the screenshot observer. However, if permission is denied by the user,
         // then disable screenshot invocations. This way, the user doesn't repeatedly get prompted to
         // grant permissions, but screenshot invocations can still be re-enabled programattically in the same session.
-        mScreenshotObserver.start(mAttachedActivity, new ScreenshotObserver.ScreenshotObserverPermissionListener() {
-            @Override
-            public void onPermissionDenied() {
-                start(InvocationMethod.NONE);
-            }
-        });
+        mScreenshotObserver.start(mAttachedActivity, () -> start(InvocationMethod.NONE));
 
         Log.d("Starting screenshot invocation method!");
     }

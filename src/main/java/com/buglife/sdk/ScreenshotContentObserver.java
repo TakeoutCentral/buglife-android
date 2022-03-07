@@ -29,7 +29,12 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.File;
+
+import kotlin.jvm.Throws;
 
 /**
  * On Android M and above, we use a ContentObserver to detect screenshots.
@@ -98,45 +103,76 @@ final class ScreenshotContentObserver implements ScreenshotObserver {
         mContentResolver = mAppContext.getContentResolver();
         mContentObserver = new ContentObserver(null) {
             @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                if (uri.toString().startsWith(EXTERNAL_CONTENT_URI_PREFIX)) {
-                    Cursor cursor = null;
-                    String screenshotPath = null;
-
-                    try {
-                        cursor = mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
-
-                        if (cursor != null && cursor.moveToFirst()) {
-                            String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                            long dateAdded = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED));
-                            // Warning: If the user manually sets their system time to something else,
-                            // this may not work
-                            long currentTime = System.currentTimeMillis() / 1000;
-
-                            if (matchPath(path) && matchTime(currentTime, dateAdded)) {
-                                Log.d("Got screenshot: " + path);
-                                screenshotPath = path;
-                            }
-                        }
-                    } catch (Exception e) {
-                        Log.e("Open cursor failed", e);
-                    } finally {
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                    }
-
-                    if (screenshotPath != null) {
-                        File file = new File(screenshotPath);
-                        mListener.onScreenshotTaken(file);
-                    }
-                }
-
+            public void onChange(boolean selfChange, @Nullable Uri uri) {
                 super.onChange(selfChange, uri);
+                if (uri == null || !uri.toString().startsWith(EXTERNAL_CONTENT_URI_PREFIX))
+                    return;
+
+                String screenshotPath = queryScreenshots(uri);
+
+                if (screenshotPath != null) {
+                    File file = new File(screenshotPath);
+                    mListener.onScreenshotTaken(file);
+                }
             }
         };
 
         mContentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, mContentObserver);
+    }
+
+    private @Nullable String queryScreenshots(@NonNull Uri uri) {
+        Cursor cursor = null;
+        String screenshotPath = null;
+
+        try {
+            String path = null;
+            long dateAdded = 0;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                String[] projection = new String[] {
+                        MediaStore.Images.Media.DISPLAY_NAME,
+                        MediaStore.Images.Media.DATE_ADDED,
+                        MediaStore.Images.Media.IS_PENDING,
+                        MediaStore.Images.Media.DATA
+                };
+                cursor = mContentResolver.query(uri, projection, null, null, SORT_ORDER);
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    boolean pending = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.IS_PENDING)) == 1;
+                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                    dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED));
+
+                    if (pending) {
+                        Log.d("Pending: " + path);
+                        return null;
+                    }
+                }
+            } else {
+                cursor = mContentResolver.query(uri, PROJECTION, null, null, SORT_ORDER);
+
+                if (cursor != null && cursor.moveToFirst()) {
+                    path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                    dateAdded = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED));
+                }
+            }
+
+            // Warning: If the user manually sets their system time to something else,
+            // this may not work
+            long currentTime = System.currentTimeMillis() / 1000;
+
+            if (path != null && matchPath(path) && matchTime(currentTime, dateAdded)) {
+                Log.d("Got screenshot: " + path);
+                screenshotPath = path;
+            }
+        } catch (Exception e) {
+            Log.e("Open cursor failed", e);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return screenshotPath;
     }
 
     @Override

@@ -34,7 +34,7 @@ import okhttp3.Response;
 public final class SubmitReportTask {
     private final NetworkManager mNetworkManager;
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
-    private static final String BUGLIFE_REPORT_URL = NetworkManager.BUGLIFE_URL+"/api/v1/reports.json";
+    private static final String BUGLIFE_REPORT_URL = NetworkManager.BUGLIFE_URL+"/api/v1/reports";
 
     public SubmitReportTask() {
         mNetworkManager = NetworkManager.getInstance();

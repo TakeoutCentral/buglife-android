@@ -80,7 +80,7 @@ public final class Report {
         reportParams.put("locale", environmentSnapshot.getLocale());
         reportParams.put("invocation_method", environmentSnapshot.getInvokationMethod().getValue());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZ", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ", Locale.US);
 
         reportParams.put("invoked_at", sdf.format(environmentSnapshot.getInvokedAt()));
         reportParams.put("submission_attempts", 1);

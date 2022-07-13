@@ -22,9 +22,6 @@ version = PUBLISH_VERSION_NAME
 ext["signing.keyId"] = ''
 ext["signing.password"] = ''
 ext["signing.secretKeyRingFile"] = ''
-ext["ossrhUsername"] = ''
-ext["ossrhPassword"] = ''
-ext["sonatypeStagingProfileId"] = ''
 
 File secretPropsFile = project.rootProject.file('local.properties')
 if (secretPropsFile.exists()) {
@@ -39,9 +36,6 @@ if (secretPropsFile.exists()) {
     ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
     ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
     ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
-    ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
-    ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
-    ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
 }
 
 publishing {
@@ -65,11 +59,11 @@ publishing {
             pom {
                 name = PUBLISH_ARTIFACT_ID
                 description = 'Buglife Android SDK'
-                url = 'https://github.com/buglife/buglife-android'
+                url = 'https://github.com/TakeoutCentral/buglife-android'
                 licenses {
                     license {
                         name = 'Apache License'
-                        url = 'https://github.com/Buglife/buglife-android/blob/master/LICENSE.txt'
+                        url = 'https://github.com/TakeoutCentral/buglife-android/blob/master/LICENSE.txt'
                     }
                 }
                 developers {
@@ -78,13 +72,18 @@ publishing {
                         name = 'Dave Schukin'
                         email = 'dave@buglife.com'
                     }
+                    developer {
+                        id = 'mgray88'
+                        name = 'Mike Gray'
+                        email = 'mike@is.digital'
+                    }
                     // Add all other devs here...
                 }
                 // Version control info - if you're using GitHub, follow the format as seen here
                 scm {
-                    connection = 'scm:git:github.com/Buglife/buglife-android.git'
-                    developerConnection = 'scm:git:ssh://github.com/Buglife/buglife-android.git'
-                    url = 'https://github.com/Buglife/buglife-android/tree/main'
+                    connection = 'scm:git:github.com/TakeoutCentral/buglife-android.git'
+                    developerConnection = 'scm:git:ssh://github.com/TakeoutCentral/buglife-android.git'
+                    url = 'https://github.com/TakeoutCentral/buglife-android/tree/main'
                 }
                 // A slightly hacky fix so that your POM will include any transitive dependencies
                 // that your library builds upon
@@ -104,18 +103,16 @@ publishing {
     // The repository to publish to, Sonatype/MavenCentral
     repositories {
         maven {
-            // This is an arbitrary name, you may also use "mavencentral" or
-            // any other name that's descriptive for you
-            name = "sonatype"
-            url = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/TakeoutCentral/buglife-android"
             credentials {
-                username ossrhUsername
-                password ossrhPassword
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
             }
         }
     }
 }
 
-signing {
-    sign publishing.publications
-}
+//signing {
+//    sign publishing.publications
+//}
